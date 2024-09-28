@@ -1,0 +1,112 @@
+﻿@page "/"
+@using System.IO.Compression
+@using System.Reflection
+@using FantomTools.Fantom
+<style>
+    .parent {
+        display: grid;
+        grid-template-columns: 1fr repeat(2, 2fr);
+        grid-template-rows: auto repeat(2, 1fr);
+        grid-column-gap: 5px;
+        grid-row-gap: 5px;
+        height: 99vh;
+        margin: 3px;
+    }
+    
+    .grid-element { 
+        overflow-y: scroll; 
+        overflow-x: hidden;
+        border:  1px solid black;
+        padding:  3px;;
+    }
+    .file-upload { grid-area: 1 / 1 / 2 / 2; }
+    .type-picker { grid-area: 2 / 1 / 3 / 2; }
+    .member-picker { grid-area: 3 / 1 / 4 / 2; }
+    .disassembly { grid-area: 1 / 2 / 4 / 3; }
+    .flow-graph { grid-area: 1 / 3 / 4 / 4; }
+    
+    .picker {
+        padding-left: 8px;
+    }
+    ul.picker > li {
+        list-style-type: none;
+    }
+    .picker-field::before {
+        content: "✏️ ";
+        
+    }
+    .picker-method::before {
+        content: "🔧 ";
+    }
+    
+    .monaco-editor-container {
+        height: 100%;
+    }
+</style>
+
+<PageTitle>Home</PageTitle>
+
+<div class="parent">
+    <div class="file-upload grid-element"><InputFile OnChange="LoadFile" /></div>
+    <div class="type-picker grid-element">
+        <ul class="picker">
+            @foreach (var type in LoadedPod?.Types ?? [])
+            {
+                <li class="picker-type" @onclick="() => { SelectedType = type; InvokeAsync(StateHasChanged); }">@type.Name</li>
+            }
+        </ul>
+    </div>
+    <div class="member-picker grid-element">
+        <ul class="picker">
+            @foreach (var field in SelectedType?.Fields ?? [])
+            {
+                <li class="picker-field">@field.Name</li>
+            }
+            
+            @foreach (var method in SelectedType?.Methods ?? [])
+            {
+                <li class="picker-method" @onclick="() => InvokeAsync(() => DisassembleMethod(method))">@method.Name</li>
+            }
+        </ul>
+    </div>
+    <div class="disassembly grid-element">
+        <StandaloneCodeEditor @ref="DisassemblyEditor" Id="disassembly-editor" ConstructionOptions="EditorConstructionOptions" />
+    </div>
+    <div class="flow-graph grid-element">flow graph</div>
+</div>
+
+@code {
+    private Pod? LoadedPod { get; set; }
+    private FantomTools.Fantom.Type? SelectedType { get; set; }
+    private StandaloneCodeEditor DisassemblyEditor { get; set; }
+    
+
+    private async void LoadFile(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        await using var fileStream = file.OpenReadStream();
+        using var memoryStream = new MemoryStream();
+        await fileStream.CopyToAsync(memoryStream);
+        using var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+        LoadedPod = FantomTools.Fantom.Pod.FromArchive(zipArchive);
+        Console.WriteLine("LoadedPod set");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task DisassembleMethod(FantomTools.Fantom.Method method)
+    {
+        var disassembly = method.Body.Dump();
+        await DisassemblyEditor.SetValue(disassembly);
+    }
+
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "text",
+            Value = "// Select a type and method to disassemble",
+            ReadOnly = true
+        };
+    }
+}
