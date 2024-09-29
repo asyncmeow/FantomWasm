@@ -22,7 +22,8 @@
     .file-upload { grid-area: 1 / 1 / 2 / 2; }
     .type-picker { grid-area: 2 / 1 / 3 / 2; }
     .member-picker { grid-area: 3 / 1 / 4 / 2; }
-    .disassembly { grid-area: 1 / 2 / 4 / 4; }
+    .disassembly { grid-area: 1 / 2 / 4 / 3; }
+    .flow-graph { grid-area:  1 / 3 / 4 / 4; }
 </style>
 
 <PageTitle>Home</PageTitle>
@@ -40,7 +41,9 @@
     <div class="disassembly grid-element">
         <MethodDisassemblyViewer Method="SelectedMethod"/>
     </div>
-    @* <div class="flow-graph grid-element">flow graph</div> *@
+    <div class="flow-graph grid-element">
+        <MethodFlowGraph Method="SelectedMethod" />
+    </div>
 </div>
 
 @code {
