@@ -1,0 +1,44 @@
+@using FantomTools.Fantom
+@inject ILogger<MethodDisassemblyViewer> Logger
+
+<StandaloneCodeEditor 
+    @ref="DisassemblyEditor" 
+    Id="disassembly-editor" 
+    ConstructionOptions="EditorConstructionOptions" />
+
+@code {
+    private Method? _method = null;
+    [Parameter] public Method? Method { get; set; }
+    private StandaloneCodeEditor? DisassemblyEditor { get; set; }
+    
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            AutomaticLayout = true,
+            Language = "text",
+            Value = "// Select a type and method to disassemble",
+            ReadOnly = true
+        };
+    }
+    
+    private async void DisassembleMethod(FantomTools.Fantom.Method? method)
+    {
+        if (method == null) return;
+        
+        var disassembly = method.Body.Dump();
+        if (DisassemblyEditor != null) 
+            await DisassemblyEditor.SetValue(disassembly);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Method != _method)
+        {
+            Logger.LogInformation("Method set for disassembly editor");
+            _method = Method;
+            DisassembleMethod(Method);
+        }
+    }
+
+}

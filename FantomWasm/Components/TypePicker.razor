@@ -1,0 +1,11 @@
+@using FantomTools.Fantom
+<ul>
+    @foreach (var type in Pod?.Types ?? [])
+    {
+        <li @onclick="() => { OnTypeSelected.InvokeAsync(type); }">@type.Name</li>
+    }
+</ul>
+@code {
+    [Parameter] public Pod? Pod { get; set; }
+    [Parameter] public EventCallback<FantomTools.Fantom.Type> OnTypeSelected { get; set; }
+}

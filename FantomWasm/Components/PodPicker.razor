@@ -1,0 +1,20 @@
+@using System.IO.Compression
+@using FantomTools.Fantom
+<InputFile OnChange="LoadFile" />
+
+    
+@code {
+    [Parameter] public EventCallback<Pod> OnPodSelected { get; set; }
+    
+
+    private async void LoadFile(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        await using var fileStream = file.OpenReadStream();
+        using var memoryStream = new MemoryStream();
+        await fileStream.CopyToAsync(memoryStream);
+        using var zipArchive = new ZipArchive(memoryStream, ZipArchiveMode.Read);
+        var pod = FantomTools.Fantom.Pod.FromArchive(zipArchive);
+        await OnPodSelected.InvokeAsync(pod);
+    }
+}

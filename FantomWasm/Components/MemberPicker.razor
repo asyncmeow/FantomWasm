@@ -1,0 +1,24 @@
+<ul>
+    @foreach (var field in Type?.Fields ?? [])
+    {
+        <li class="picker-field"
+            @onclick="() => InvokeAsync(() => OnFieldSelected.InvokeAsync(field))">
+                @field.Name
+        </li>
+    }
+            
+    @foreach (var method in Type?.Methods ?? [])
+    {
+        <li
+            class="picker-method"
+            @onclick="() => InvokeAsync(() => OnMethodSelected.InvokeAsync(method))">
+                @method.Name
+        </li>
+    }
+</ul>
+@code {
+    [Parameter] public FantomTools.Fantom.Type? Type { get; set; }
+    
+    [Parameter] public EventCallback<FantomTools.Fantom.Field> OnFieldSelected { get; set; }
+    [Parameter] public EventCallback<FantomTools.Fantom.Method> OnMethodSelected { get; set; }
+}

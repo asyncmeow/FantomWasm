@@ -1,0 +1,12 @@
+ul {
+    padding-left: 8px;
+}
+li {
+    list-style-type: none;
+}
+.picker-field::before {
+    content: "✏️ ";
+}
+.picker-method::before {
+    content: "🔧 ";
+}
