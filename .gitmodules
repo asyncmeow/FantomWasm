@@ -1,0 +1,4 @@
+[submodule "MermaidJS.Blazor"]
+	path = MermaidJS.Blazor
+	url = https://github.com/asyncmeow/MermaidJS.Blazor
+	branch = dotnet8update
