@@ -3,9 +3,11 @@ ul {
 }
 li {
     list-style-type: none;
+    font-size: 12px;
+    font-family: monospace;
 }
 .picker-field::before {
-    content: "✏️ ";
+    content: "📖 ";
 }
 .picker-method::before {
     content: "🔧 ";
